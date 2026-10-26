@@ -13,8 +13,14 @@ export const videojuegoService = {
   obtenerTodos() {
     return api.get("/videojuegos/");
   },
+  obtenerPorId(id) {
+    return api.get(`/videojuegos/${id}`);
+  },
   registrar(nombre) {
     return api.post("/videojuegos/", { nombre });
+  },
+  actualizar(id, datos) {
+    return api.patch(`/videojuegos/${id}`, datos);
   },
   eliminar(id) {
     return api.delete(`/videojuegos/${id}`);

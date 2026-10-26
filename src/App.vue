@@ -1,12 +1,16 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { videojuegoService } from "./services/videojuegoService"; // <--- Importamos el servicio
+import { videojuegoService } from "./services/videojuegoService";
 import VideojuegoCard from "./components/VideoJuegoCard.vue";
+import VideojuegoModal from "./components/VideoJuegoModal.vue";
 
 const videojuegos = ref([]);
 const nuevoNombre = ref("");
 
-// 1. Obtener todos los videojuegos (GET)
+// Control del Modal
+const modalAbierto = ref(false);
+const idSeleccionado = ref(null);
+
 const obtenerVideojuegos = async () => {
   try {
     const respuesta = await videojuegoService.obtenerTodos();
@@ -16,7 +20,6 @@ const obtenerVideojuegos = async () => {
   }
 };
 
-// 2. Registrar un videojuego usando IA (POST)
 const registrarVideojuego = async () => {
   if (!nuevoNombre.value.trim()) return;
   try {
@@ -28,7 +31,11 @@ const registrarVideojuego = async () => {
   }
 };
 
-// 3. Eliminar un videojuego (DELETE)
+const abrirModal = (juego) => {
+  idSeleccionado.value = juego.id;
+  modalAbierto.value = true;
+};
+
 const eliminarVideojuego = async (id) => {
   try {
     await videojuegoService.eliminar(id);
@@ -72,9 +79,18 @@ onMounted(() => {
           v-for="juego in videojuegos"
           :key="juego.id"
           :juego="juego"
+          @editar="abrirModal"
           @eliminar="eliminarVideojuego"
         />
       </div>
     </div>
+
+    <!-- Componente Modal Independiente -->
+    <VideojuegoModal
+      :is-open="modalAbierto"
+      :juego-id="idSeleccionado"
+      @cerrar="modalAbierto = false"
+      @guardado="obtenerVideojuegos"
+    />
   </div>
 </template>
