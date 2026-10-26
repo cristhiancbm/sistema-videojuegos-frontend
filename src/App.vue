@@ -1,16 +1,15 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import axios from "axios";
+import { videojuegoService } from "./services/videojuegoService"; // <--- Importamos el servicio
 import VideojuegoCard from "./components/VideoJuegoCard.vue";
 
 const videojuegos = ref([]);
 const nuevoNombre = ref("");
-const API_URL = "http://localhost:8000/videojuegos";
 
 // 1. Obtener todos los videojuegos (GET)
 const obtenerVideojuegos = async () => {
   try {
-    const respuesta = await axios.get(API_URL);
+    const respuesta = await videojuegoService.obtenerTodos();
     videojuegos.value = respuesta.data;
   } catch (error) {
     console.error("Error al cargar los videojuegos:", error);
@@ -21,7 +20,7 @@ const obtenerVideojuegos = async () => {
 const registrarVideojuego = async () => {
   if (!nuevoNombre.value.trim()) return;
   try {
-    await axios.post(API_URL + "/", { nombre: nuevoNombre.value });
+    await videojuegoService.registrar(nuevoNombre.value);
     nuevoNombre.value = "";
     await obtenerVideojuegos();
   } catch (error) {
@@ -32,7 +31,7 @@ const registrarVideojuego = async () => {
 // 3. Eliminar un videojuego (DELETE)
 const eliminarVideojuego = async (id) => {
   try {
-    await axios.delete(`${API_URL}/${id}`);
+    await videojuegoService.eliminar(id);
     await obtenerVideojuegos();
   } catch (error) {
     console.error("Error al eliminar:", error);
